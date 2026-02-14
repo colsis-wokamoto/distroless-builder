@@ -30,7 +30,7 @@ TRIVY_COMPARE_IMAGES = \
 .PHONY: help list config login build build-all push push-all trivy-pull trivy-scan trivy-summary trivy-compare
 
 help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "%-16s %s\n", $$1, $$2}'
+	@grep -h -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "%-16s %s\n", $$1, $$2}'
 
 list: ## Show build targets from docker-bake.hcl
 	@docker buildx bake --file $(BAKE_FILE) --list targets
