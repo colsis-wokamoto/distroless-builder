@@ -1,107 +1,124 @@
-# distroless-image
+# distroless-base-image
 
 ## Overview
-- Repository for building and publishing distroless base images.
+- Repository for building Docker image artifacts used as distroless-oriented runtime bases.
 - Build definitions are managed by `docker-bake.hcl` and `Makefile`.
-- Dockerfiles are organized under `dockerfiles/`.
+- Dockerfiles are organized under `dockerfiles/` by runtime and version.
+- `.env` is loaded automatically by `Makefile` when present.
 
 ## Tech Stack
 - Docker Buildx Bake (`docker buildx bake`)
-- Multi-stage Dockerfiles based on `gcr.io/distroless/base-debian13`
-- GitHub Actions workflow for manual publish (`workflow_dispatch`)
+- GNU Make workflows for local build and push
+- Multi-stage copy patterns for runtime binaries and dependent shared libraries
+- Trivy + `jq` summary flow for vulnerability comparison (`make trivy-*` targets)
 
-## Managed Images
-Build targets from `docker-bake.hcl`:
-- `distroless-base-apache24`
-- `distroless-base-movabletype`
-- `distroless-base-nginx`
-- `distroless-base-wordpress-cli`
-- `distroless-base-wordpress-php83`
-- `distroless-base-wordpress-php84`
-- `distroless-base-wordpress-php85`
+## Build Targets
+Targets defined in `docker-bake.hcl`:
+- `httpd` (`dockerfiles/httpd/24/Dockerfile`)
+- `nginx` (`dockerfiles/nginx/latest/Dockerfile`)
+- `nginx-stable` (`dockerfiles/nginx/stable/Dockerfile`)
+- `php83` (`dockerfiles/php/83/Dockerfile`)
+- `php84` (`dockerfiles/php/84/Dockerfile`)
+- `php85` (`dockerfiles/php/85/Dockerfile`)
+- `perl` (`dockerfiles/perl/54/Dockerfile`)
+- `wp-cli` (`dockerfiles/wordpress/cli/Dockerfile`)
 
-Tag format:
-- `${NAMESPACE}/distroless-base:<variant>-${TAG}`
-- Example: `your-namespace/distroless-base:apache24-latest`
+Tag patterns from `docker-bake.hcl` variables:
+- `${NAMESPACE}/${PROJECT}-httpd:${TAG}`
+- `${NAMESPACE}/${PROJECT}-nginx:${TAG}`
+- `${NAMESPACE}/${PROJECT}-nginx:stable`
+- `${NAMESPACE}/${PROJECT}-php8.3:${TAG}`
+- `${NAMESPACE}/${PROJECT}-php8.4:${TAG}`
+- `${NAMESPACE}/${PROJECT}-php8.5:${TAG}`
+- `${NAMESPACE}/${PROJECT}-perl:${TAG}`
+- `${NAMESPACE}/${PROJECT}-wp-cli:${TAG}`
 
 ## Configuration
-Main variables (`Makefile`, `.env.example`):
-- `DOCKERHUB_NAMESPACE` (default namespace source)
-- `NAMESPACE` (defaults to `DOCKERHUB_NAMESPACE`, or `local`)
+Main variables (from `.env.example`, `Makefile`, and `docker-bake.hcl`):
+- `DOCKERHUB_NAMESPACE` (default source namespace)
+- `NAMESPACE` (defaults to `DOCKERHUB_NAMESPACE`; fallback is `local`)
+- `PROJECT` (default: `distroless-builder`)
 - `TAG` (default: `latest`)
 - `PLATFORMS` (default: `linux/amd64,linux/arm64`)
-- `TIME_ZONE` (default: `Asia/Tokyo`)
-- `WP_VERSION` (default: `latest`)
+- `LOCAL_TAG_WITH_ARCH` (default in `Makefile`: `1`)
+- `BAKE_FILE` (default: `docker-bake.hcl`)
+- `TRIVY_OUT_DIR` (default: `/tmp/trivy-distroless-compare`)
 
 ## Key Paths
 - `docker-bake.hcl`
 - `Makefile`
 - `.env.example`
-- `.github/workflows/dockerhub-publish.yml`
-- `dockerfiles/apache24/Dockerfile`
-- `dockerfiles/movabletype/Dockerfile`
-- `dockerfiles/nginx/Dockerfile`
+- `dockerfiles/httpd/24/Dockerfile`
+- `dockerfiles/nginx/latest/Dockerfile`
+- `dockerfiles/nginx/stable/Dockerfile`
+- `dockerfiles/php/83/Dockerfile`
+- `dockerfiles/php/84/Dockerfile`
+- `dockerfiles/php/85/Dockerfile`
+- `dockerfiles/perl/54/Dockerfile`
+- `dockerfiles/perl/54/README-DBD-mysql.md`
 - `dockerfiles/wordpress/cli/Dockerfile`
-- `dockerfiles/wordpress/php83/Dockerfile`
-- `dockerfiles/wordpress/php84/Dockerfile`
-- `dockerfiles/wordpress/php85/Dockerfile`
 
 ## Local Development
-1. Prepare environment variables:
+1. Create environment file:
 ```bash
 cp .env.example .env
 ```
 
-2. Check available Make targets:
-```bash
-make help
-```
-
-3. List available bake targets:
-```bash
-make list
-```
-
-4. Show resolved configuration:
+2. Confirm resolved values:
 ```bash
 make config
 ```
 
-5. Build one image locally:
+3. Show available bake targets:
 ```bash
-make build IMAGE=distroless-base-nginx TAG=latest
+make list
 ```
 
-6. Build all images locally:
+4. Build one target locally:
+```bash
+make build IMAGE=nginx TAG=latest
+```
+
+5. Build all targets locally:
 ```bash
 make build-all TAG=latest
 ```
 
-7. Push one image:
+6. Push one target:
 ```bash
 make login
-make push IMAGE=distroless-base-nginx TAG=latest
+make push IMAGE=nginx TAG=latest
 ```
 
-8. Push all images:
+7. Push all targets:
 ```bash
 make login
 make push-all TAG=latest
 ```
 
-## GitHub Actions
-Manual publish is defined in `.github/workflows/dockerhub-publish.yml` (`workflow_dispatch`).
+For multi-platform local builds (`PLATFORMS` contains multiple values), `LOCAL_TAG_WITH_ARCH=1` appends architecture suffixes such as `-amd64` / `-arm64` during `--load` to avoid tag overwrite.
 
-Inputs:
-- `target` (`all` or a single bake target)
-- `tag`
-- `platforms`
-- `time_zone`
-- `wp_version`
+## Trivy Comparison Flow
+1. Pull reference images:
+```bash
+make trivy-pull
+```
 
-Required secrets:
-- `DOCKERHUB_USERNAME`
-- `DOCKERHUB_TOKEN`
+2. Run scans and store raw JSON:
+```bash
+make trivy-scan
+```
+
+3. Print severity summary table:
+```bash
+make trivy-summary
+```
+
+Or run both scan and summary:
+```bash
+make trivy-compare
+```
 
 ## Notes
-- `dockerfiles/movabletype/Dockerfile` builds a runtime image that does not bundle Movable Type source code.
+- `make push` and `make push-all` fail intentionally when `NAMESPACE=local`.
+- `dockerfiles/perl/54/README-DBD-mysql.md` documents why Oracle MySQL client libraries are used for `DBD::mysql` builds.
