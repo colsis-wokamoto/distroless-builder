@@ -1,17 +1,10 @@
-FROM nginx:1.29-alpine-slim AS builder
+FROM nginx:1.29-alpine-slim
 
-# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-ARG TIME_ZONE="Asia/Tokyo"
-
-RUN set -eux; \
-    apk update; \
-    apk upgrade --no-cache
+USER root
 
 RUN set -eux; \
-    apk add --no-cache tzdata
-
-RUN set -eux; \
-    mkdir -p /opt/var/cache/nginx /opt/etc; \
+    mkdir -p /opt/var/cache/nginx /opt/etc /opt/var/www/html; \
+    cp -a /usr/share/nginx/html/. /opt/var/www/html/; \
     cp -a --parents /usr/lib/nginx /opt; \
     cp -a --parents /usr/share/nginx /opt; \
     cp -a --parents /var/log/nginx /opt; \
@@ -31,13 +24,4 @@ RUN set -eux; \
           esac; \
           mkdir -p "$(dirname "$target")"; \
           cp -aL "$so" "$target"; \
-        done; \
-    cp /usr/share/zoneinfo/${TIME_ZONE:-ROC} /opt/etc/localtime
-
-FROM gcr.io/distroless/base-debian13
-
-COPY --from=builder /opt /
-
-EXPOSE 80 443
-
-ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
+        done

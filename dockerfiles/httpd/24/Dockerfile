@@ -1,18 +1,10 @@
-FROM httpd:2.4-alpine AS builder
+FROM httpd:2.4-alpine
 
-# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-ARG TIME_ZONE="Asia/Tokyo"
-
-RUN set -eux; \
-    apk update; \
-    apk upgrade --no-cache
+USER root
 
 RUN set -eux; \
-    apk add --no-cache tzdata
-
-RUN set -eux; \
-    mkdir -p /opt/etc; \
-    mkdir -p /opt/var/www/html; \
+    mkdir -p /opt/etc /opt/var/www/html; \
+    cp -a /usr/local/apache2/htdocs/. /opt/var/www/html/; \
     cp -a --parents /usr/local/apache2 /opt; \
     cp -a --parents /etc/passwd /opt; \
     cp -a --parents /etc/group /opt; \
@@ -31,13 +23,4 @@ RUN set -eux; \
           esac; \
           mkdir -p "$(dirname "$target")"; \
           cp -aL "$so" "$target"; \
-        done; \
-    cp /usr/share/zoneinfo/${TIME_ZONE:-ROC} /opt/etc/localtime
-
-FROM gcr.io/distroless/base-debian13
-
-COPY --from=builder /opt /
-
-EXPOSE 80
-
-ENTRYPOINT ["/usr/local/apache2/bin/httpd", "-DFOREGROUND", "-f", "/usr/local/apache2/conf/httpd.conf"]
+        done

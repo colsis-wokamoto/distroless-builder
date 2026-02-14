@@ -6,12 +6,8 @@ variable "TAG" {
   default = "latest"
 }
 
-variable "TIME_ZONE" {
-  default = "Asia/Tokyo"
-}
-
-variable "WP_VERSION" {
-  default = "latest"
+variable "PROJECT" {
+  default = "distroless-builder"
 }
 
 group "default" {
@@ -20,77 +16,69 @@ group "default" {
 
 group "all" {
   targets = [
-    "distroless-base-apache24",
-    "distroless-base-movabletype",
-    "distroless-base-nginx",
-    "distroless-base-wordpress-cli",
-    "distroless-base-wordpress-php83",
-    "distroless-base-wordpress-php84",
-    "distroless-base-wordpress-php85",
+    "httpd",
+    "nginx",
+    "nginx-stable",
+    "php83",
+    "php84",
+    "php85",
+    "perl",
+    "wp-cli",
   ]
 }
 
 target "_base-common" {
   context = "."
-  args = {
-    TIME_ZONE = "${TIME_ZONE}"
-  }
 }
 
-target "distroless-base-apache24" {
+target "httpd" {
   inherits = ["_base-common"]
-  dockerfile = "dockerfiles/apache24/Dockerfile"
-  tags = ["${NAMESPACE}/distroless-base:apache24-${TAG}"]
+  dockerfile = "dockerfiles/httpd/24/Dockerfile"
+  tags = ["${NAMESPACE}/${PROJECT}-httpd:${TAG}"]
 }
 
-target "distroless-base-movabletype" {
+target "nginx" {
   inherits = ["_base-common"]
-  dockerfile = "dockerfiles/movabletype/Dockerfile"
-  tags = ["${NAMESPACE}/distroless-base:movabletype-${TAG}"]
+  dockerfile = "dockerfiles/nginx/latest/Dockerfile"
+  tags = ["${NAMESPACE}/${PROJECT}-nginx:${TAG}"]
 }
 
-target "distroless-base-nginx" {
+target "nginx-stable" {
   inherits = ["_base-common"]
-  dockerfile = "dockerfiles/nginx/Dockerfile"
-  tags = ["${NAMESPACE}/distroless-base:nginx-${TAG}"]
+  dockerfile = "dockerfiles/nginx/stable/Dockerfile"
+  tags = ["${NAMESPACE}/${PROJECT}-nginx:stable"]
 }
 
-target "distroless-base-wordpress-cli" {
+target "php83" {
+  inherits = ["_base-common"]
+  context = "dockerfiles/php/83"
+  dockerfile = "Dockerfile"
+  tags = ["${NAMESPACE}/${PROJECT}-php8.3:${TAG}"]
+}
+
+target "php84" {
+  inherits = ["_base-common"]
+  context = "dockerfiles/php/84"
+  dockerfile = "Dockerfile"
+  tags = ["${NAMESPACE}/${PROJECT}-php8.4:${TAG}"]
+}
+
+target "php85" {
+  inherits = ["_base-common"]
+  context = "dockerfiles/php/85"
+  dockerfile = "Dockerfile"
+  tags = ["${NAMESPACE}/${PROJECT}-php8.5:${TAG}"]
+}
+
+target "perl" {
+  inherits = ["_base-common"]
+  dockerfile = "dockerfiles/perl/54/Dockerfile"
+  tags = ["${NAMESPACE}/${PROJECT}-perl:${TAG}"]
+}
+
+target "wp-cli" {
   inherits = ["_base-common"]
   context = "dockerfiles/wordpress/cli"
   dockerfile = "Dockerfile"
-  tags = ["${NAMESPACE}/distroless-base:wordpress-cli-${TAG}"]
-}
-
-target "distroless-base-wordpress-php83" {
-  inherits = ["_base-common"]
-  context = "dockerfiles/wordpress/php83"
-  dockerfile = "Dockerfile"
-  args = {
-    TIME_ZONE = "${TIME_ZONE}"
-    WP_VERSION = "${WP_VERSION}"
-  }
-  tags = ["${NAMESPACE}/distroless-base:wordpress-php83-${TAG}"]
-}
-
-target "distroless-base-wordpress-php84" {
-  inherits = ["_base-common"]
-  context = "dockerfiles/wordpress/php84"
-  dockerfile = "Dockerfile"
-  args = {
-    TIME_ZONE = "${TIME_ZONE}"
-    WP_VERSION = "${WP_VERSION}"
-  }
-  tags = ["${NAMESPACE}/distroless-base:wordpress-php84-${TAG}"]
-}
-
-target "distroless-base-wordpress-php85" {
-  inherits = ["_base-common"]
-  context = "dockerfiles/wordpress/php85"
-  dockerfile = "Dockerfile"
-  args = {
-    TIME_ZONE = "${TIME_ZONE}"
-    WP_VERSION = "${WP_VERSION}"
-  }
-  tags = ["${NAMESPACE}/distroless-base:wordpress-php85-${TAG}"]
+  tags = ["${NAMESPACE}/${PROJECT}-wp-cli:${TAG}"]
 }
