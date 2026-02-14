@@ -38,8 +38,8 @@ RUN set -eux; \
     cp /usr/lib64/libmysqlclient* /mysql-client/lib/ 2>/dev/null || \
     cp /usr/lib/mysql/libmysqlclient* /mysql-client/lib/ 2>/dev/null || true
 
-# Multi-stage build: perl:5.42-slim (Debian) -> distroless base
-FROM perl:5.42-slim
+# Multi-stage build: perl:5.40-slim (Debian) -> distroless base
+FROM perl:5.40-slim
 
 # Use root to patch base packages and install build dependencies.
 USER root
@@ -104,12 +104,24 @@ RUN set -eux; \
         Task::Plack \
         Test::TCP \
         HTML::Entities \
+        DateTime \
+        Email::MIME \
         Env \
         File::Which \
+        Filesys::DfPortable \
+        JSON::XS \
         LWP \
         LWP::Protocol::https \
+        Log::Dispatch::Config \
+        Log::Dispatch::Configurator::Perl \
+        Log::Dispatch::Configurator::YAML \
+        Log::Log4perl \
+        Log::Minimal \
+        Sys::MemInfo \
         YAML \
+        YAML::XS \
         Time::HiRes \
+        Term::Encoding \
         IO::Socket::SSL \
         Mozilla::CA \
         Archive::Zip \
@@ -119,6 +131,7 @@ RUN set -eux; \
         Digest::SHA1 \
         IO::Stringy \
         XML::Parser \
+        Path::Class \
         Imager \
         XMLRPC::Transport::HTTP::Plack \
         Net::Server::SS::PreFork \
@@ -131,10 +144,11 @@ RUN set -eux; \
         XML::LibXML \
         XML::LibXML::SAX
 
-# Optional: Crypt::SSLeay, Crypt::DSA (may fail on this base due to legacy C/OpenSSL)
-RUN cpm install -g Crypt::SSLeay Crypt::DSA || true
+## Optional: Crypt::SSLeay, Crypt::DSA (may fail on this base due to legacy C/OpenSSL)
+#RUN apt-get install libssl-dev; \
+#    cpm install -g Crypt::SSLeay Crypt::DSA || true
 
-# Copy perl 5.42, create directories, config, and expand Movable Type
+# Copy perl 5.40, create directories, config, and expand Movable Type
 RUN set -eux; \
     mkdir -p \
       /opt \

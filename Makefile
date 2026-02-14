@@ -20,9 +20,9 @@ TRIVY_OUT_DIR ?= /tmp/trivy-distroless-compare
 TRIVY_COMPARE_IMAGES = \
 	httpd:2.4-alpine \
 	distroless-mt:httpd \
-	nginx:1.29.0-alpine-slim \
+	nginx:1.29-alpine-slim \
 	distroless-wp:nginx \
-	perl:5.42-slim \
+	perl:5.40-slim \
 	distroless-mt:movabletype \
 	wordpress:php8.4-fpm-alpine \
 	distroless-wp:wordpress-php84
