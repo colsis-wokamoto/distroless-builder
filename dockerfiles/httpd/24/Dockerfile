@@ -1,7 +1,16 @@
+# Base image with Apache HTTP Server on Alpine Linux.
 FROM httpd:2.4-alpine
 
+# Use root for package operations and file collection.
 USER root
 
+# Refresh package metadata, apply upgrades, and install helper tools.
+RUN set -eux; \
+    apk update; \
+    apk upgrade --no-cache; \
+    apk add --no-cache tzdata wget tar rsync
+
+# Assemble Apache runtime files and dependent shared libraries under /opt.
 RUN set -eux; \
     mkdir -p /opt/etc /opt/var/www/html; \
     cp -a /usr/local/apache2/htdocs/. /opt/var/www/html/; \

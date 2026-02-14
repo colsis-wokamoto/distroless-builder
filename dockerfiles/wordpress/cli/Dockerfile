@@ -1,9 +1,19 @@
+# Base image with WordPress CLI tooling on Alpine Linux.
 FROM wordpress:cli
 
+# Use root for package operations and file collection.
 USER root
 
+# Refresh package metadata, apply upgrades, and install helper tools.
+RUN set -eux; \
+    apk update; \
+    apk upgrade --no-cache; \
+    apk add --no-cache tzdata wget tar rsync
+
+# Copy WordPress source used by wp-cli workflows in this image.
 COPY --from=wordpress:php8.3-fpm-alpine /usr/src/wordpress/ /usr/src/wordpress/
 
+# Assemble CLI runtime files, BusyBox symlinks, and shared libraries under /opt.
 RUN set -eux; \
     mkdir -p /opt; \
     BB="$(command -v busybox.static || command -v busybox)"; \

@@ -1,7 +1,16 @@
+# Base image with WordPress PHP 8.5 FPM on Alpine Linux.
 FROM wordpress:php8.5-fpm-alpine
 
+# Use root for package operations and file collection.
 USER root
 
+# Refresh package metadata, apply upgrades, and install helper tools.
+RUN set -eux; \
+    apk update; \
+    apk upgrade --no-cache; \
+    apk add --no-cache tzdata wget tar rsync
+
+# Assemble PHP/WordPress runtime files and shared libraries under /opt.
 RUN set -eux; \
     mkdir -p /opt; \
     cp -a --parents /usr/local /opt; \
