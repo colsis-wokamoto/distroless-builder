@@ -7,7 +7,8 @@ USER root
 # Refresh package metadata and apply available upgrades.
 RUN set -eux; \
     apk update; \
-    apk upgrade --no-cache
+    apk upgrade --no-cache; \
+    apk add --no-cache tzdata wget tar rsync
 
 # Assemble Nginx runtime files and dependent shared libraries under /opt.
 RUN set -eux; \
