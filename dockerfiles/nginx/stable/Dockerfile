@@ -1,7 +1,16 @@
+# Base image with Nginx stable channel on Alpine Linux.
 FROM nginx:1.28-alpine-slim
 
+# Use root for package operations and file collection.
 USER root
 
+# Refresh package metadata and apply available upgrades.
+RUN set -eux; \
+    apk update; \
+    apk upgrade --no-cache; \
+    apk add --no-cache tzdata wget tar rsync
+
+# Assemble Nginx runtime files and dependent shared libraries under /opt.
 RUN set -eux; \
     mkdir -p /opt/var/cache/nginx /opt/etc /opt/var/www/html; \
     cp -a /usr/share/nginx/html/. /opt/var/www/html/; \

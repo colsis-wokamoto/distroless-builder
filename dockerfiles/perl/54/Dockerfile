@@ -2,8 +2,10 @@
 # Using oraclelinux:9-slim avoids conflict with mysql image's server-minimal; we only need devel + libs.
 FROM oraclelinux:9-slim AS mysql-client
 
+# Use root to configure repositories and install client packages.
 USER root
 
+# Add the official MySQL repository and install MySQL client/devel packages.
 RUN set -eux; \
     key='BCA43417C3B485DD128EC6D4B7B3B788A8D3785C'; \
     export GNUPGHOME="$(mktemp -d)"; \
@@ -21,6 +23,8 @@ RUN set -eux; \
     } | tee /etc/yum.repos.d/mysql-community.repo; \
     microdnf install -y mysql-community-client mysql-community-devel; \
     microdnf clean all
+
+# Normalize mysql_config, headers, and client libraries for cross-stage copy.
 RUN set -eux; \
     mkdir -p /mysql-client/bin /mysql-client/include /mysql-client/lib; \
     if [ -x /usr/bin/mysql_config-64 ]; then \
@@ -37,10 +41,18 @@ RUN set -eux; \
 # Multi-stage build: perl:5.42-slim (Debian) -> distroless base
 FROM perl:5.42-slim
 
+# Use root to patch base packages and install build dependencies.
 USER root
+
+# Refresh package metadata and apply OS-level upgrades.
+RUN set -eux; \
+    apt-get update; \
+    apt-get upgrade -y; \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy MySQL client dev from official image; place under paths that mysql_config returns (-L/usr/lib64/mysql, -I/usr/include/mysql)
 COPY --from=mysql-client /mysql-client /opt/mysql-client
+# Place copied MySQL headers, libraries, and mysql_config into build paths.
 RUN set -eux; \
     cp -r /opt/mysql-client/include/mysql /usr/include/; \
     mkdir -p /usr/lib64/mysql; \
