@@ -36,12 +36,13 @@ list: ## Show build targets from docker-bake.hcl
 	@docker buildx bake --file $(BAKE_FILE) --list targets
 
 config: ## Show resolved variables
+	@echo "DOCKERHUB_NAMESPACE=$(DOCKERHUB_NAMESPACE)"
 	@echo "NAMESPACE=$(NAMESPACE)"
 	@echo "TAG=$(TAG)"
 	@echo "PLATFORMS=$(PLATFORMS)"
 	@echo "LOCAL_TAG_WITH_ARCH=$(LOCAL_TAG_WITH_ARCH)"
-	@echo "TIME_ZONE=$(TIME_ZONE)"
-	@echo "WP_VERSION=$(WP_VERSION)"
+	@echo "BAKE_FILE=$(BAKE_FILE)"
+	@echo "TRIVY_OUT_DIR=$(TRIVY_OUT_DIR)"
 
 login: ## Login to Docker Hub
 	@docker login

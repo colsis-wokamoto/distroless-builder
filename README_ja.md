@@ -51,13 +51,12 @@
 主要な変数（`.env.example` / `Makefile` / `docker-bake.hcl`）:
 - `DOCKERHUB_NAMESPACE`（namespace の既定ソース）
 - `NAMESPACE`（既定値は `DOCKERHUB_NAMESPACE`、未設定時は `local`）
-- `PROJECT`（既定値: `distroless-builder`）
+- `PROJECT`（既定値: `distroless-builder`。`docker-bake.hcl` 内のみで定義され、`.env` や Makefile からは上書き不可）
 - `TAG`（既定値: `latest`）
 - `PLATFORMS`（既定値: `linux/amd64,linux/arm64`）
 - `LOCAL_TAG_WITH_ARCH`（`Makefile` の既定値: `1`）
 - `BAKE_FILE`（既定値: `docker-bake.hcl`）
 - `TRIVY_OUT_DIR`（既定値: `/tmp/trivy-distroless-compare`）
-- `TIME_ZONE`、`WP_VERSION`（任意。特定ターゲット用に `.env` で設定可能。`make config` で表示）
 
 ## ローカル開発
 1. 環境変数ファイルを作成:

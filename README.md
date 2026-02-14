@@ -51,13 +51,12 @@ Tag patterns from `docker-bake.hcl` variables:
 Main variables (from `.env.example`, `Makefile`, and `docker-bake.hcl`):
 - `DOCKERHUB_NAMESPACE` (default source for namespace)
 - `NAMESPACE` (defaults to `DOCKERHUB_NAMESPACE`; fallback is `local`)
-- `PROJECT` (default: `distroless-builder`)
+- `PROJECT` (default: `distroless-builder`; defined in `docker-bake.hcl` only, not overridable via `.env` or Makefile)
 - `TAG` (default: `latest`)
 - `PLATFORMS` (default: `linux/amd64,linux/arm64`)
 - `LOCAL_TAG_WITH_ARCH` (default in `Makefile`: `1`)
 - `BAKE_FILE` (default: `docker-bake.hcl`)
 - `TRIVY_OUT_DIR` (default: `/tmp/trivy-distroless-compare`)
-- `TIME_ZONE`, `WP_VERSION` (optional; set in `.env` for certain targets, shown by `make config`)
 
 ## Local Development
 1. Create environment file:
