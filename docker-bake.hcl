@@ -33,7 +33,7 @@ target "_base-common" {
 
 target "httpd" {
   inherits = ["_base-common"]
-  dockerfile = "dockerfiles/httpd/24/Dockerfile"
+  dockerfile = "dockerfiles/httpd/2.4/Dockerfile"
   tags = ["${NAMESPACE}/${PROJECT}-httpd:${TAG}"]
 }
 
@@ -51,28 +51,28 @@ target "nginx-stable" {
 
 target "php83" {
   inherits = ["_base-common"]
-  context = "dockerfiles/php/83"
+  context = "dockerfiles/php/8.3"
   dockerfile = "Dockerfile"
   tags = ["${NAMESPACE}/${PROJECT}-php8.3:${TAG}"]
 }
 
 target "php84" {
   inherits = ["_base-common"]
-  context = "dockerfiles/php/84"
+  context = "dockerfiles/php/8.4"
   dockerfile = "Dockerfile"
   tags = ["${NAMESPACE}/${PROJECT}-php8.4:${TAG}"]
 }
 
 target "php85" {
   inherits = ["_base-common"]
-  context = "dockerfiles/php/85"
+  context = "dockerfiles/php/8.5"
   dockerfile = "Dockerfile"
   tags = ["${NAMESPACE}/${PROJECT}-php8.5:${TAG}"]
 }
 
 target "perl" {
   inherits = ["_base-common"]
-  dockerfile = "dockerfiles/perl/54/Dockerfile"
+  dockerfile = "dockerfiles/perl/5.40/Dockerfile"
   tags = ["${NAMESPACE}/${PROJECT}-perl:${TAG}"]
 }
 
